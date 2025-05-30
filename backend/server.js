@@ -10,6 +10,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer'); // Added for file uploads
 const { parse } = require('csv-parse'); // Added for CSV parsing
+require('dotenv').config();
+
 
 const app = express();
 
@@ -890,9 +892,15 @@ app.put('/api/issue-reports/:id', authMiddleware, async (req, res) => {
 
 
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/AMS', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log("MongoDB connected successfully");
+}).catch((err) => {
+  console.error("MongoDB connection error:", err);
+});
 
 // Serve static files for QR codes
 app.use(express.static('public'));
