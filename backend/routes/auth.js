@@ -43,16 +43,12 @@ router.post('/assign-asset', auth, async (req, res) => {
 router.post('/', async (req, res) => {
   const { username, password } = req.body;
   try {
-    console.log('Login attempt for:', username, 'with password:', password); // Debug log
     const user = await User.findOne({ username });
     if (!user) {
-      console.log('User not found:', username); // Debug user not found
       return res.status(400).json({ message: 'User not found' });
     }
-    console.log('Found user:', user.username, 'with password:', user.password); // Log stored password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log('Password mismatch for:', username); // Debug password mismatch
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 

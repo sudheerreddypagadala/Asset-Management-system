@@ -674,7 +674,6 @@ app.get('/api/asset-requests', authMiddleware, async (req, res) => {
       query.status = 'HOD Approved';
     }
 
-    console.log('Final Asset Request Query:', query);
     const requests = await Request.find(query);
     res.json(requests);
   } catch (e) {
@@ -825,7 +824,6 @@ app.put('/api/issue-reports/:id', authMiddleware, async (req, res) => {
 
     const report = await IssueReport.findById(req.params.id);
     const asset = await Asset.findOne({ assetCode: report.assetCode });
-    console.log('report:', report);
     if (!report) {
       return res.status(404).json({ msg: 'Issue report not found' });
     }
