@@ -33,6 +33,7 @@ const AdminDashboard = () => {
   const [sortOption, setSortOption] = useState('all');
   const [assetNames, setAssetNames] = useState([]);
   const fetchedUsername = sessionStorage.getItem('username') || username || 'Admin';
+  const BASIC_URL = import.meta.env.VITE_REACT_APP_BASIC_URL;
 
   const normalizeAssetName = (name) => {
     if (!name) return '';
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/assets', {
+      const response = await fetch(`${BASIC_URL}/api/assets`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) {
@@ -96,7 +97,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
   setLoading(true);
   try {
-    const response = await fetch('http://localhost:5000/api/all-users', {
+    const response = await fetch(`${BASIC_URL}/api/all-users`, {
       headers: { 'x-auth-token': token },
     });
     if (!response.ok) {
@@ -108,7 +109,7 @@ const AdminDashboard = () => {
     // Fetch assigned assets for each user
     const usersWithAssets = await Promise.all(
       [...data.hods, ...data.users].map(async (user) => {
-        const assetResponse = await fetch(`http://localhost:5000/api/assets?userId=${user._id}`, {
+        const assetResponse = await fetch(`${BASIC_URL}/api/assets?userId=${user._id}`, {
           headers: { 'x-auth-token': token },
         });
         if (!assetResponse.ok) {
@@ -142,7 +143,7 @@ const AdminDashboard = () => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/asset-requests?status=HOD%20Approved', {
+      const response = await fetch(`${BASIC_URL}/api/asset-requests?status=HOD%20Approved`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) {
@@ -161,7 +162,7 @@ const AdminDashboard = () => {
   const fetchIssueReports = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/issue-reports', {
+      const response = await fetch(`${BASIC_URL}/api/issue-reports`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) {
@@ -169,7 +170,6 @@ const AdminDashboard = () => {
         throw new Error(errorData.msg || `HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Issue Reports:', data);
       setIssueReports(Array.isArray(data) ? data : []);
     } catch (error) {
       setError(error.message);
@@ -181,7 +181,7 @@ const AdminDashboard = () => {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/notifications', {
+      const response = await fetch(`${BASIC_URL}/api/notifications`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) {
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/assets', {
+      const response = await fetch(`${BASIC_URL}/api/assets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify(newAsset),
@@ -235,7 +235,7 @@ const AdminDashboard = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/add-user', {
+      const response = await fetch(`${BASIC_URL}/api/add-user`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify(newUser),
@@ -276,7 +276,7 @@ const AdminDashboard = () => {
         assetId: selectedAsset._id,
         action: 'add',
       };
-      const assignResponse = await fetch('http://localhost:5000/api/assign-asset', {
+      const assignResponse = await fetch(`${BASIC_URL}/api/assign-asset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify(assignPayload),
@@ -287,7 +287,7 @@ const AdminDashboard = () => {
       }
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -296,7 +296,7 @@ const AdminDashboard = () => {
             departmentid: selectedUser.departmentid,
           }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -336,7 +336,7 @@ const AdminDashboard = () => {
         assetId: assetId,
         action: 'remove',
       };
-      const removeResponse = await fetch('http://localhost:5000/api/assign-asset', {
+      const removeResponse = await fetch(`${BASIC_URL}/api/assign-asset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify(removePayload),
@@ -346,7 +346,7 @@ const AdminDashboard = () => {
         throw new Error(removeError.msg || `HTTP error! Status: ${removeResponse.status}`);
       }
 
-      await fetch('http://localhost:5000/api/notifications', {
+      await fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -376,7 +376,7 @@ const AdminDashboard = () => {
           user.assignedAssets.map((asset) => handleRemoveAssignment(user, asset.assetId))
         );
       }
-      const response = await fetch(`http://localhost:5000/api/users/${user._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/users/${user._id}`, {
         method: 'DELETE',
         headers: { 'x-auth-token': token },
       });
@@ -402,7 +402,7 @@ const AdminDashboard = () => {
         setError('Cannot delete an assigned asset. Please unassign it first.');
         return;
       }
-      const response = await fetch(`http://localhost:5000/api/assets/${asset._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/assets/${asset._id}`, {
         method: 'DELETE',
         headers: { 'x-auth-token': token },
       });
@@ -410,7 +410,7 @@ const AdminDashboard = () => {
         const errorData = await response.json();
         throw new Error(errorData.msg || `HTTP error! Status: ${response.status}`);
       }
-      await fetch('http://localhost:5000/api/notifications', {
+      await fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -448,7 +448,7 @@ const AdminDashboard = () => {
         action: 'add',
       };
 
-      const assigAsset = await fetch('http://localhost:5000/api/assign-user-asset', {
+      const assigAsset = await fetch(`${BASIC_URL}/api/assign-user-asset`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify(assignPayload),
@@ -458,7 +458,7 @@ const AdminDashboard = () => {
         throw new Error(assignError.msg || `HTTP error! Status: ${assigAsset.status}`);
       }
 
-      const requestResponse = await fetch(`http://localhost:5000/api/asset-requests/${request._id}`, {
+      const requestResponse = await fetch(`${BASIC_URL}/api/asset-requests/${request._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ status: 'Admin Approved' }),
@@ -469,7 +469,7 @@ const AdminDashboard = () => {
       }
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -478,7 +478,7 @@ const AdminDashboard = () => {
             departmentid: request.departmentid,
           }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -509,7 +509,7 @@ const AdminDashboard = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/asset-requests/${request._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/asset-requests/${request._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ status: 'Admin Rejected', rejectionComments: comments }),
@@ -520,7 +520,7 @@ const AdminDashboard = () => {
       }
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -529,7 +529,7 @@ const AdminDashboard = () => {
             departmentid: request.departmentid,
           }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -647,10 +647,9 @@ const AdminDashboard = () => {
   // };
 
  const handleMaintenanceApproveRequest = async (asset) => {
-  console.log('Sending asset:', asset);
   setLoading(true);
   try {
-    const response = await fetch('http://localhost:5000/api/maintain-asset', {
+    const response = await fetch(`${BASIC_URL}/api/maintain-asset`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -669,7 +668,7 @@ const AdminDashboard = () => {
     }
 
     await Promise.all([
-      fetch('http://localhost:5000/api/notifications', {
+      fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -678,7 +677,7 @@ const AdminDashboard = () => {
           departmentid: asset.departmentid,
         }),
       }),
-      fetch('http://localhost:5000/api/notifications', {
+      fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -700,7 +699,7 @@ const AdminDashboard = () => {
   const handleApproveIssueReport = async (report) => {
   setLoading(true);
   try {
-    const response = await fetch(`http://localhost:5000/api/issue-reports/${report._id}`, {
+    const response = await fetch(`${BASIC_URL}/api/issue-reports/${report._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
       body: JSON.stringify({ status: 'Under Maintenance' }),
@@ -711,7 +710,7 @@ const AdminDashboard = () => {
     }
 
     await Promise.all([
-      fetch('http://localhost:5000/api/notifications', {
+      fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -720,7 +719,7 @@ const AdminDashboard = () => {
           departmentid: report.departmentid,
         }),
       }),
-      fetch('http://localhost:5000/api/notifications', {
+      fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -750,7 +749,7 @@ const handleRejectIssueReport = async (report) => {
   }
   setLoading(true);
   try {
-    const response = await fetch(`http://localhost:5000/api/issue-reports/${report._id}`, {
+    const response = await fetch(`${BASIC_URL}/api/issue-reports/${report._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
       body: JSON.stringify({ status: 'Rejected', rejectionComments: comments }),
@@ -761,7 +760,7 @@ const handleRejectIssueReport = async (report) => {
     }
 
     await Promise.all([
-      fetch('http://localhost:5000/api/notifications', {
+      fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -770,7 +769,7 @@ const handleRejectIssueReport = async (report) => {
           departmentid: report.departmentid,
         }),
       }),
-      fetch('http://localhost:5000/api/notifications', {
+      fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -807,7 +806,7 @@ const handleRejectIssueReport = async (report) => {
     try {
       const formData = new FormData();
       formData.append('file', bulkUploadFile);
-      const response = await fetch('http://localhost:5000/api/bulk-upload', {
+      const response = await fetch(`${BASIC_URL}/api/bulk-upload`, {
         method: 'POST',
         headers: { 'x-auth-token': token },
         body: formData,
@@ -1021,7 +1020,7 @@ const handleRejectIssueReport = async (report) => {
                         <div key={asset._id} className="asset-card">
                           <div className="asset-visible">
                             {asset.qrCode && (
-                              <img src={`http://localhost:5000${asset.qrCode}`} alt="QR Code" />
+                              <img src={`${BASIC_URL}${asset.qrCode}`} alt="QR Code" />
                             )}
                             <div className="asset-code">Asset Code: {asset.assetCode}</div>
                           </div>
@@ -1250,7 +1249,7 @@ const handleRejectIssueReport = async (report) => {
                       <div className="request-card-visible">
                         {asset.qrCode && (
                           <img
-                            src={`http://localhost:5000${asset.qrCode}`}
+                            src={`${BASIC_URL}${asset.qrCode}`}
                             alt="QR Code"
                             className="request-qr-code"
                           />

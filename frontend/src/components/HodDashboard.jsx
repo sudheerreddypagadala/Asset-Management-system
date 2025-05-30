@@ -37,6 +37,7 @@ const HodDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState('all');
   const [assetNames, setAssetNames] = useState([]);
+  const BASIC_URL = import.meta.env.VITE_REACT_APP_BASIC_URL;
 
   const normalizeAssetName = (name) => {
     if (!name) return '';
@@ -68,7 +69,7 @@ const HodDashboard = () => {
       setLoadingAssets(true);
       try {
         const response = await fetch(
-          `http://localhost:5000/api/assets?role=hod&username=${encodeURIComponent(username)}`,
+          `${BASIC_URL}/api/assets?role=hod&username=${encodeURIComponent(username)}`,
           {
             headers: { 'x-auth-token': token },
           }
@@ -78,7 +79,6 @@ const HodDashboard = () => {
           throw new Error(errorData.msg || `HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Fetched department assets:', data);
         setAssets(Array.isArray(data) ? data : []);
       } catch (error) {
         setError(error.message);
@@ -92,7 +92,7 @@ const HodDashboard = () => {
     const fetchAllAvailableAssets = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/assets', {
+        const response = await fetch(`${BASIC_URL}/api/assets`, {
           headers: { 'x-auth-token': token },
         });
         if (!response.ok) {
@@ -101,7 +101,6 @@ const HodDashboard = () => {
         }
         const data = await response.json();
         setAllAssets(Array.isArray(data) ? data : []);
-        console.log('Fetched all assets:', data);
 
         // Process unique asset names
         const nameMap = new Map();
@@ -135,7 +134,7 @@ const HodDashboard = () => {
   const fetchUsers = async () => {
     setLoadingUsers(true);
     try {
-      const response = await fetch('http://localhost:5000/api/all-users', {
+      const response = await fetch(`${BASIC_URL}/api/all-users`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) {
@@ -174,7 +173,7 @@ const HodDashboard = () => {
   const fetchRequests = async () => {
     setLoadingRequests(true);
     try {
-      const response = await fetch('http://localhost:5000/api/asset-requests', {
+      const response = await fetch(`${BASIC_URL}/api/asset-requests`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) {
@@ -195,7 +194,7 @@ const HodDashboard = () => {
     try {
       if (!departmentid) throw new Error('Department ID is missing');
       const response = await fetch(
-        `http://localhost:5000/api/issue-reports?departmentid=${departmentid}`,
+        `${BASIC_URL}/api/issue-reports?departmentid=${departmentid}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -220,7 +219,7 @@ const HodDashboard = () => {
     setLoadingNotifications(true);
     try {
       if (!departmentid) throw new Error('Department ID is missing');
-      const response = await fetch(`http://localhost:5000/api/notifications?departmentid=${departmentid}`, {
+      const response = await fetch(`${BASIC_URL}/api/notifications?departmentid=${departmentid}`, {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token,
@@ -233,7 +232,6 @@ const HodDashboard = () => {
       const data = await response.json();
       const filteredNotifications = Array.isArray(data) ? data : [];
       setNotifications(filteredNotifications);
-      console.log('Filtered notifications for hod:', filteredNotifications);
     } catch (error) {
       setError(`Failed to fetch notifications: ${error.message}`);
     } finally {
@@ -246,9 +244,6 @@ const HodDashboard = () => {
     if (!selectedUser || !selectedAsset) {
       setError('Please select a user and an asset');
       return;
-    } else {
-      console.log('Selected User:', selectedUser);
-      console.log('Selected Asset:', selectedAsset);
     }
     if (!selectedAsset._id) {
       setError('Invalid asset selected');
@@ -256,21 +251,25 @@ const HodDashboard = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/assets/${selectedAsset._id}/assign`, {
+      const response = await fetch(`${BASIC_URL}/api/assets/${selectedAsset._id}/assign`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json', 
           'x-auth-token': token 
         },
         body: JSON.stringify({ 
-          userId: selectedUser._id,    // this is essential
+          userId: selectedUser._id,
           username: selectedUser.username 
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || `HTTP error! Status: ${response.status}`);
+      }
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -279,7 +278,7 @@ const HodDashboard = () => {
             departmentid: selectedUser.departmentid,
           }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -305,12 +304,11 @@ const HodDashboard = () => {
 
   const handleRemoveAssignment = async (user, assetId) => {
     setLoadingAssets(true);
-    console.log(user, assetId);
     try {
       const asset = allAssets.find((a) => a._id === assetId);
       if (!asset) throw new Error('Asset not found');
 
-      const assetRemoveResponse = await fetch(`http://localhost:5000/api/assets/${assetId}/unassign`, {
+      const assetRemoveResponse = await fetch(`${BASIC_URL}/api/assets/${assetId}/unassign`, {
         method: 'PATCH',
         headers: { 'x-auth-token': token },
       });
@@ -321,7 +319,7 @@ const HodDashboard = () => {
       }
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -330,7 +328,7 @@ const HodDashboard = () => {
             departmentid: user.departmentid,
           }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({
@@ -353,7 +351,7 @@ const HodDashboard = () => {
 
   const handleApproveRequest = async (request) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/asset-requests/${request._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/asset-requests/${request._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ status: 'HOD Approved' }),
@@ -363,7 +361,7 @@ const HodDashboard = () => {
         throw new Error(`Update request failed: ${errorData.msg || response.statusText}`);
       }
 
-      await fetch('http://localhost:5000/api/notifications', {
+      await fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -389,7 +387,7 @@ const HodDashboard = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5000/api/asset-requests/${request._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/asset-requests/${request._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ status: 'HOD Rejected', rejectionComments: comments }),
@@ -399,7 +397,7 @@ const HodDashboard = () => {
         throw new Error(`Update request failed: ${errorData.msg || response.statusText}`);
       }
 
-      await fetch('http://localhost:5000/api/notifications', {
+      await fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -421,7 +419,7 @@ const HodDashboard = () => {
 
   const handleApproveIssueReport = async (report) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/issue-reports/${report._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/issue-reports/${report._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ status: 'HOD Approved' }),
@@ -431,7 +429,7 @@ const HodDashboard = () => {
         throw new Error(`Update issue report failed: ${errorData.msg || response.statusText}`);
       }
 
-      await fetch('http://localhost:5000/api/notifications', {
+      await fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -457,7 +455,7 @@ const HodDashboard = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5000/api/issue-reports/${report._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/issue-reports/${report._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ status: 'Rejected', rejectionComments: comments }),
@@ -467,7 +465,7 @@ const HodDashboard = () => {
         throw new Error(`Update issue report failed: ${errorData.msg || response.statusText}`);
       }
 
-      await fetch('http://localhost:5000/api/notifications', {
+      await fetch(`${BASIC_URL}/api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({
@@ -490,7 +488,7 @@ const HodDashboard = () => {
   const handleDeleteUser = async (user) => {
     if (!window.confirm(`Are you sure you want to delete user ${user.username}?`)) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${user._id}`, {
+      const response = await fetch(`${BASIC_URL}/api/users/${user._id}`, {
         method: 'DELETE',
         headers: { 'x-auth-token': token },
       });
@@ -550,7 +548,6 @@ const HodDashboard = () => {
   };
 
   const handleUserSetClick = (user) => {
-    console.log(user);
     setSelectedUser(user);
   };
 
@@ -670,7 +667,7 @@ const HodDashboard = () => {
                         <div key={asset._id} className="asset-card">
                           <div className="asset-visible">
                             {asset.qrCode && (
-                              <img src={`http://localhost:5000${asset.qrCode}`} alt="QR Code" />
+                              <img src={`${BASIC_URL}${asset.qrCode}`} alt="QR Code" />
                             )}
                             <div className="asset-code">Asset Code: {asset.assetCode}</div>
                           </div>
@@ -894,7 +891,7 @@ const HodDashboard = () => {
                       <p>Model: {asset.model}</p>
                       <p>Status: {asset.status}</p>
                       {asset.qrCode && (
-                        <img src={`http://localhost:5000${asset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />
+                        <img src={`${BASIC_URL}${asset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />
                       )}
                     </div>
                   ))}

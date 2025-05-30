@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../css/Register.css';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png'; // Import the new logo
+const BASIC_URL = import.meta.env.VITE_REACT_APP_BASIC_URL;
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -36,14 +37,13 @@ const Register = () => {
     console.log('Sending registration data:', dataToSend);
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch(`${BASIC_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
       });
 
       const result = await response.json();
-      console.log('API response:', result);
       if (response.ok) {
         alert(`Registration successful as ${formData.userType}! Your details have been saved.`);
         setFormData({

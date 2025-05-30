@@ -21,8 +21,9 @@ const UserDashboard = () => {
   const [error, setError] = useState(null);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); // New state for search input
+  const [searchQuery, setSearchQuery] = useState('');
   const fetchedUsername = sessionStorage.getItem('username') || 'Guest';
+  const BASIC_URL = import.meta.env.VITE_REACT_APP_BASIC_URL;
 
   useEffect(() => {
     if (!token) {
@@ -31,8 +32,8 @@ const UserDashboard = () => {
     }
 
     // Load assets by default to make assets the home view
-    fetchAssets().catch(setError);
-    fetchAvailableAssets().catch(setError);
+    fetchAssets().catch((err) => setError(err.message)); // Extract message from error
+    fetchAvailableAssets().catch((err) => setError(err.message)); // Extract message from error
   }, [token]);
 
   useEffect(() => {
@@ -45,9 +46,7 @@ const UserDashboard = () => {
           { facingMode: 'environment' },
           { fps: 10, qrbox: { width: 250, height: 250 } },
           async (decodedText) => {
-            console.log('Scanned QR content:', decodedText);
             const assetCode = decodedText.split('Code:')[1]?.trim();
-            console.log('Extracted asset code:', assetCode);
 
             if (!assetCode) {
               setError('Invalid QR code format. Expected "Code: <assetCode>"');
@@ -56,12 +55,11 @@ const UserDashboard = () => {
             }
 
             try {
-              const response = await fetch(`http://localhost:5000/api/assets/${assetCode}`, {
+              const response = await fetch(`${BASIC_URL}/api/assets/${assetCode}`, {
                 headers: { 'x-auth-token': token },
               });
               if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
               const asset = await response.json();
-              console.log('Fetched asset:', asset);
               setSelectedAsset(asset);
               setShowAssetDetailsPopup(true);
               setShowQRScanner(false);
@@ -92,17 +90,16 @@ const UserDashboard = () => {
   }, [showQRScanner, token]);
 
   const fetchAssets = async () => {
-    const response = await fetch('http://localhost:5000/api/user-assets', {
+    const response = await fetch(`${BASIC_URL}/api/user-assets`, {
       headers: { 'x-auth-token': token },
     });
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
     const data = await response.json();
     setAssets(data);
-    console.log('Fetched assets:', data);
   };
 
   const fetchAvailableAssets = async () => {
-    const response = await fetch('http://localhost:5000/api/assets', {
+    const response = await fetch(`${BASIC_URL}/api/assets`, {
       headers: { 'x-auth-token': token },
     });
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -120,7 +117,7 @@ const UserDashboard = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/notifications', {
+      const response = await fetch(`${BASIC_URL}/api/notifications`, {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token,
@@ -133,7 +130,6 @@ const UserDashboard = () => {
       }
 
       const data = await response.json();
-      console.log('Notifications data:', data);
       setNotifications(data);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
@@ -148,19 +144,19 @@ const UserDashboard = () => {
     if (!selectedAssetCode) return alert('Please select an asset');
 
     try {
-      await fetch('http://localhost:5000/api/asset-requests', {
+      await fetch(`${BASIC_URL}/api/asset-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ username, assetCode: selectedAssetCode, departmentid, status: 'Pending' }),
       });
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({ username: 'hod', message: `User ${username} requested asset ${selectedAssetCode}.`, departmentid }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({ username: 'admin', message: `User ${username} requested asset ${selectedAssetCode}.`, departmentid }),
@@ -182,19 +178,19 @@ const UserDashboard = () => {
     if (!selectedAsset || !issueMessage) return alert('Please provide an issue description');
 
     try {
-      await fetch('http://localhost:5000/api/report-issue', {
+      await fetch(`${BASIC_URL}/api/report-issue`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ username, assetCode: selectedAsset.assetCode, message: issueMessage, departmentid, status: 'Pending' }),
       });
 
       await Promise.all([
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({ username: 'hod', message: `User ${username} reported an issue for asset ${selectedAsset.assetCode}: ${issueMessage}`, departmentid }),
         }),
-        fetch('http://localhost:5000/api/notifications', {
+        fetch(`${BASIC_URL}/api/notifications`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
           body: JSON.stringify({ username: 'admin', message: `User ${username} reported an issue for asset ${selectedAsset.assetCode}: ${issueMessage}`, departmentid }),
@@ -253,8 +249,7 @@ const UserDashboard = () => {
       <div className="dashboard-content">
         <aside className="sidebar">
           <nav>
-                        <button className="sidebar-button" onClick={() => { fetchAssets(); setShowNotifications(false); setSearchQuery(''); }}>📋 My Assets</button>
-
+            <button className="sidebar-button" onClick={() => { fetchAssets(); setShowNotifications(false); setSearchQuery(''); }}>📋 My Assets</button>
             <button className="sidebar-button" onClick={() => setShowQRScanner(true)}>📷 Scan QR Code</button>
             <button className="sidebar-button" onClick={() => { fetchAvailableAssets(); setShowRequestPopup(true); }}>➕ Request Asset</button>
             <button className="sidebar-button" onClick={() => { fetchNotifications(); setShowNotifications(true); }}>🔔 Notifications</button>
@@ -292,7 +287,7 @@ const UserDashboard = () => {
                         <h3>{asset.name}</h3>
                         <p>Asset Code: {asset.assetCode}</p>
                         <p>Status: {asset.status}</p>
-                        {asset.qrCode && <img src={`http://localhost:5000${asset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />}
+                        {asset.qrCode && <img src={`${BASIC_URL}${asset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />}
                       </div>
                     ))}
                   </div>
@@ -329,21 +324,21 @@ const UserDashboard = () => {
                   <p><strong>Model:</strong> {selectedAsset.model}</p>
                   <p><strong>Status:</strong> {selectedAsset.status}</p>
                   {selectedAsset.qrCode && (
-                    <img src={`http://localhost:5000${selectedAsset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />
+                    <img src={`${BASIC_URL}${selectedAsset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />
                   )}
                 
-                <form onSubmit={handleReportIssue}>
-                  <label className="report-issue-label" htmlFor="issueMessage">Report Issue</label>
-                  <textarea
-                    className="report-issues-textarea"
-                    id="issueMessage"
-                    value={issueMessage}
-                    onChange={(e) => setIssueMessage(e.target.value)}
-                    placeholder="Describe the issue"
-                    required
-                  />
-                  <button type="submit" className="submit-button">Report Issue</button>
-                </form>
+                  <form onSubmit={handleReportIssue}>
+                    <label className="report-issue-label" htmlFor="issueMessage">Report Issue</label>
+                    <textarea
+                      className="report-issues-textarea"
+                      id="issueMessage"
+                      value={issueMessage}
+                      onChange={(e) => setIssueMessage(e.target.value)}
+                      placeholder="Describe the issue"
+                      required
+                    />
+                    <button type="submit" className="submit-button">Report Issue</button>
+                  </form>
                 </div>
               </div>
             </div>

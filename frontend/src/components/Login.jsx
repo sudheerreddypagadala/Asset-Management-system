@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../css/Login.css';
 import logo from '../assets/logo.png';
+const BASIC_URL = import.meta.env.VITE_REACT_APP_BASIC_URL;
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -11,10 +12,8 @@ const Login = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('Login component mounted');
     const { state } = location;
     if (state?.userType) {
-      console.log('Redirecting from state:', state.userType);
       if (state.userType === 'admin') {
         navigate('/dashboard', { state });
       } else if (state.userType === 'hod') {
@@ -27,11 +26,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { username, password });
 
     // Hardcode admin login
     if (username === 'admin' && password === 'admin123') {
-      console.log('Hardcoded admin login successful');
       const state = {
         userType: 'admin',
         departmentid: null,
@@ -43,19 +40,16 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${BASIC_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      console.log('Login response status:', response.status);
       if (!response.ok) {
         const errorText = await response.text();
-        console.log('Error response:', errorText);
         throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
       }
       const result = await response.json();
-      console.log('API response:', result);
 
       if (response.ok) {
         sessionStorage.setItem('username', result.username);
