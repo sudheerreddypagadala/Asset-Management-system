@@ -1,0 +1,26 @@
+# Node.js dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build outputs
+.next/
+dist/
+out/
+
+# System files
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE settings
+.vscode/
+.idea/
+
+# Optional lockfiles
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
