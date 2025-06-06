@@ -39,46 +39,54 @@ const UserDashboard = () => {
   useEffect(() => {
     let html5QrCode;
 
-    const startScanner = async () => {
-      try {
-        html5QrCode = new Html5Qrcode('qr-reader');
-        await html5QrCode.start(
-          { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          async (decodedText) => {
-            const assetCode = decodedText.split('Code:')[1]?.trim();
+   const startScanner = async () => {
+  try {
+    html5QrCode = new Html5Qrcode('qr-reader');
+    await html5QrCode.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      async (decodedText) => {
+        const assetCode = decodedText.split('Code:')[1]?.trim();
 
-            if (!assetCode) {
-              setError('Invalid QR code format. Expected "Code: <assetCode>"');
-              await html5QrCode.stop();
-              return;
-            }
-
-            try {
-              const response = await fetch(`${BASIC_URL}/api/assets/${assetCode}`, {
-                headers: { 'x-auth-token': token },
-              });
-              if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-              const asset = await response.json();
-              setSelectedAsset(asset);
-              setShowAssetDetailsPopup(true);
-              setShowQRScanner(false);
-              await html5QrCode.stop();
-            } catch (err) {
-              setError(`Failed to fetch asset: ${err.message}`);
-              if (html5QrCode.getState() === Html5QrcodeScannerState.SCANNING) {
-                await html5QrCode.stop();
-              }
-            }
-          },
-          (err) => {
-            console.error('QR scan error:', err);
+        if (!assetCode) {
+          setError('Invalid QR code format. Expected "Code: <assetCode>"');
+          if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.SCANNING) {
+            await html5QrCode.stop();
           }
-        );
-      } catch (err) {
-        setError(`QR scanner initialization failed: ${err.message}`);
+          return;
+        }
+
+        try {
+          const response = await fetch(`${BASIC_URL}/api/assets/${assetCode}`, {
+            headers: { 'x-auth-token': token },
+          });
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+          const asset = await response.json();
+          setSelectedAsset(asset);
+          setShowAssetDetailsPopup(true);
+          setShowQRScanner(false);
+          if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.SCANNING) {
+            await html5QrCode.stop();
+          }
+        } catch (err) {
+          setError(`Failed to fetch asset: ${err.message}`);
+          if (html5QrCode && html5QrCode.getState() === Html5QrcodeScannerState.SCANNING) {
+            await html5QrCode.stop();
+          }
+        }
+      },
+      (err) => {
+        if (err.name !== 'NotFoundException') {
+          console.error('QR scan error:', err);
+        }
       }
-    };
+    );
+  } catch (err) {
+    setError(`QR scanner initialization failed: ${err.message}`);
+  }
+};
+
+
 
     if (showQRScanner) startScanner();
 
@@ -283,13 +291,23 @@ const UserDashboard = () => {
                 {filteredAssets.length > 0 ? (
                   <div className="assets-grid">
                     {filteredAssets.map((asset) => (
-                      <div key={asset._id} className="asset-card">
-                        <h3>{asset.name}</h3>
-                        <p>Asset Code: {asset.assetCode}</p>
-                        <p>Status: {asset.status}</p>
-                        {asset.qrCode && <img src={`${BASIC_URL}${asset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />}
-                      </div>
-                    ))}
+  <div key={asset._id} className="asset-cards">
+    <h3>{asset.name}</h3>
+    <p>Asset Code: {asset.assetCode}</p>
+    <p>Status: {asset.status}</p>
+    {asset.qrCode && <img src={`${BASIC_URL}${asset.qrCode}`} alt="QR Code" style={{ width: '100px' }} />}
+    <button
+      className="report-issue-button"
+      onClick={() => {
+        setSelectedAsset(asset);
+        setShowAssetDetailsPopup(true);
+      }}
+    >
+      Report Issue
+    </button>
+  </div>
+))}
+
                   </div>
                 ) : (
                   <p>{searchQuery ? 'No assets match your search.' : 'No assets assigned.'}</p>

@@ -26,6 +26,9 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [rejectionComments, setRejectionComments] = useState({});
+  const [showRejectCommentBox, setShowRejectCommentBox] = useState({});
+  
+
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showBulkUploadPopup, setShowBulkUploadPopup] = useState(false);
@@ -781,7 +784,11 @@ const handleRejectIssueReport = async (report) => {
     ]);
 
     alert('Issue report rejected successfully!');
-    setRejectionComments((prev) => ({ ...prev, [report._id]: '' }));
+    setShowRejectCommentBox((prev) => ({
+  ...prev,
+  [report._id]: false,
+}));
+
     fetchIssueReports();
     fetchNotifications();
   } catch (error) {
@@ -1186,39 +1193,73 @@ const handleRejectIssueReport = async (report) => {
                 <span className="return-arrow" onClick={() => setShowReports(false)}>←</span>
                 <h2 className="section-title">Issue Reports</h2>
               </div>
+              <div className="nav-section">
+                <h3 className="requests">User</h3>
+                <p className="requests">Asset Code</p>
+                <p className="requests">Issue</p>
+                <p className="requests">Status</p>
+                <p className="requests">Time</p>
+                <p className="requests">Approve</p>
+                <p className="requests">Reject</p>
+              </div>
               {loading ? (
                 <p className="loading-text">Loading issue reports...</p>
-              ) : issueReports.length > 0 ? (
-                <div className="requests-grid">
-                  {issueReports.map((report) => (
+              ) : issueReports.filter(report => report.status !== 'Under Maintenance').length > 0 ? (
+                <div className="requests-grids">
+                  {issueReports
+          .filter(report => report.status !== 'Under Maintenance')
+          .map((report) => (
                     <div key={report._id} className="request-card">
-                      <h3 className="request-user">User: {report.username || 'Unknown'}</h3>
-                      <p className="request-asset">Asset Code: {report.assetCode || 'N/A'}</p>
-                      <p className="request-issue">Issue: {report.message || 'No description'}</p>
-                      <p className="request-status">Status: {report.status || 'HOD Approved'}</p>
-                      <p className="request-time">Time: {new Date(report.timestamp).toLocaleString()}</p>
+                      <h3 className="request-user">{report.username || 'Unknown'}</h3>
+                      <p className="request-asset">{report.assetCode || 'N/A'}</p>
+                      <p className="request-issue">{report.message || 'No description'}</p>
+                      <p className="request-status">{report.status || 'HOD Approved'}</p>
+                      <p className="request-time">{new Date(report.timestamp).toLocaleString()}</p>
                       {report.status === 'HOD Approved' && (
                         <>
-                          <button className="btn-approve" onClick={() => handleApproveIssueReport(report)}>
-                            Approve
-                          </button>
-                          <button className="btn-reject" onClick={() => handleRejectIssueReport(report)}>
-                            Reject
-                          </button>
-                          <div className="comment-box">
-                            <label htmlFor={`comment-${report._id}`} className="comment-label">
-                              Rejection Reason
-                            </label>
-                            <textarea
-                              id={`comment-${report._id}`}
-                              className="comment-input"
-                              value={rejectionComments[report._id] || ''}
-                              onChange={(e) =>
-                                setRejectionComments((prev) => ({ ...prev, [report._id]: e.target.value }))
+                        
+                          <div className="request-buttons">
+                            <button className="btn-approve" onClick={() => handleApproveIssueReport(report)}>
+                              Approve
+                            </button>
+
+                            <button
+                              className="btn-reject"
+                              onClick={() =>
+                                setShowRejectCommentBox((prev) => ({
+                                  ...prev,
+                                  [report._id]: true,
+                                }))
                               }
-                              placeholder="Enter reason for rejection"
-                            />
+                            >
+                              Reject
+                            </button>
                           </div>
+
+                          {showRejectCommentBox[report._id] && (
+                            <div className="comment-box">
+                              <label htmlFor={`comment-${report._id}`} className="comment-label">
+                                Rejection Reason
+                              </label>
+                              <textarea
+                                id={`comment-${report._id}`}
+                                className="comment-input"
+                                value={rejectionComments[report._id] || ''}
+                                onChange={(e) =>
+                                  setRejectionComments((prev) => ({
+                                    ...prev,
+                                    [report._id]: e.target.value,
+                                  }))
+                                }
+                                placeholder="Enter reason for rejection"
+                              />
+                              <button className="btn-confirm-reject" onClick={() => handleRejectIssueReport(report)}>
+                                Confirm Reject
+                              </button>
+                              {error && <div className="error-text">{error}</div>}
+                            </div>
+                          )}
+
                         </>
                       )}
                       {report.status === 'Rejected' && (

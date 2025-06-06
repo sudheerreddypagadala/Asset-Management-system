@@ -724,39 +724,69 @@
   padding: 2rem;
 }
 
-.requests-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+.requests-grids {
+  width: 97%;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
+.requests {
+  padding-bottom: 40px;
+  margin: auto;
+  margin-top: 10px;
+  color: rgb(212,175,55)
+}
 
-.request-card {
-  background: #f9fafb;
+.request-asset,.request-user,.request-status,.request-time ,.request-issue{
+  color: white;
+  margin: auto;
+  margin-top: -10px;
+}
+.request-asset{
+  margin-top: -80px;
+  margin: auto;
+}
+
+.nav-section{
+  gap: 10%;
+  width: 100%;
+  background: rgb(42, 42, 42);
+  display: flex;
+  flex-direction: row;
+  height: 30px;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
   border: 1px solid #e5e7eb;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  margin-bottom: 20px;
+}
+.request-card {
+  gap: 0%;
+  width: 100%;
+  background: #676666;
+  display: flex;
+  flex-direction: row;
+  height: 0px;
+  border-radius: 8px;
+  padding-bottom: 2rem;
+  padding-left: 1rem;
+  
+
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+.request-buttons{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
 }
 
-.request-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
 
-.request-user {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.request-asset,
-.request-status,
-.request-time {
-  color: #4b5563;
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-}
 
 .btn-approve,
 .btn-reject {
@@ -884,8 +914,9 @@
 
 .request-card {
   position: relative;
-  background: #f9fafb;
+  background: #595959;
   border-radius: 8px;
+  padding-bottom: 2rem;
   padding: 1.5rem;
   border: 1px solid #e5e7eb;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -932,13 +963,7 @@
   margin-bottom: 0.5rem;
 }
 
-.request-asset,
-.request-model,
-.request-status {
-  color: #4b5563;
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-}
+
 
 .request-qr-code {
   width: 100px;
@@ -1005,8 +1030,9 @@
 
 .request-card {
   position: relative;
-  background: #f9fafb;
+  background: #646464;
   border-radius: 8px;
+  padding-bottom: 2rem;
   padding: 1.5rem;
   border: 1px solid #e5e7eb;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1019,20 +1045,6 @@
 
 
 
-.request-user {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.request-asset,
-.request-status,
-.request-time {
-  color: #4b5563;
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-}
 
 .btn-approve,
 .btn-reject {
@@ -1133,4 +1145,26 @@
 }
 .bulk-details,.bulk-format{
   padding: auto;
+}
+
+.report-issue-button {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.report-issue-button:hover {
+  background-color: #c0392b;
+}
+
+.asset-cards{
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: #fff;
+  height: 100%;
 }

@@ -18,6 +18,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const verifyToken = require('./middleware/auth'); 
+
+
 // Configure multer for file uploads
 const upload = multer({ dest: 'uploads/' }); // Temporary storage for uploaded files
 
