@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Migrated global styles from Vite React app */
+/* Login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #e6e6fa;
+}
+.login-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+.login-header { margin-bottom: 1.5rem; }
+.login-logo { width: 80px; height: auto; margin-bottom: 0.5rem; }
+.login-box h1 { color: #333; font-size: 1.5rem; margin: 0; }
+.input-group { margin-bottom: 1.5rem; text-align: left; }
+.input-group label { display: block; color: #333; font-weight: 500; margin-bottom: 0.5rem; }
+.input-group input, .input-group select, .input-group textarea {
+  width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;
+}
+.input-group input:focus, .input-group select:focus { outline: none; border-color: #333; }
+.action-button { width: 100%; padding: 0.75rem; background-color: #333; color: #fff; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s ease; }
+.action-button:hover { background-color: #555; }
+.extra-links { margin-top: 1.5rem; text-align: center; }
+.extra-links a { color: #333; text-decoration: none; }
+.extra-links a:hover { text-decoration: underline; }
+
+/* Register */
+.register-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e6e6fa; }
+.register-box { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+.register-header { margin-bottom: 1.5rem; }
+.register-logo { width: 80px; height: auto; margin-bottom: 0.5rem; }
+
+/* Home */
+.home-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f5f5f5; }
+.home-content { background: white; padding: 2rem 3rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
+.home-content h1 { color: #333; font-size: 2rem; margin-bottom: 1rem; }
+.home-content p { color: #666; margin-bottom: 2rem; }
+.home-buttons { display: flex; gap: 1rem; justify-content: center; }
+.home-button { padding: 0.75rem 2rem; background-color: #333; color: white; border: none; border-radius: 5px; font-size: 1rem; text-decoration: none; cursor: pointer; transition: background-color 0.3s ease; }
+.home-button:hover { background-color: #555; }
+
+/* Dashboard styles (trimmed, core classes only) */
+.dashboard-container { min-height: 100vh; background-color: #f0f0f5; color: #333; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(255,255,255,0.95); box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+.logo-container { position: absolute; top: 1rem; left: 1rem; }
+.dashboard-logo { width: 90px; height: auto; }
+.header-center { text-align: center; flex-grow: 1; margin-left: 100px; }
+.tagline { font-size: 0.95rem; font-weight: 300; color: #777; margin: 0.25rem 0 0; }
+.header-right { display: flex; align-items: center; gap: 1rem; }
+.search-bar { padding: 0.6rem 1rem; border: 1px solid #ddd; border-radius: 20px; font-size: 0.95rem; }
+.user-profile { display: flex; align-items: center; padding: 5px 10px; background-color: #eee7f1; border-radius: 4px; cursor: pointer; }
+.dashboard-content { display: flex; height: calc(100vh - 80px); gap: 1rem; }
+.sidebar { width: 260px; background: linear-gradient(180deg, #ffffff, #f8f9fa); padding: 1.5rem; border-right: 1px solid #e0e0e0; }
+.home-button { width: 100%; padding: 0.9rem; background: none; border: none; text-align: left; font-size: 1.05rem; color: #181111; cursor: pointer; display: flex; align-items: center; margin-bottom: 0.75rem; border-radius: 6px; }
+.sidebar-button { width: 100%; padding: 0.9rem; background: none; border: none; text-align: left; font-size: 1.05rem; color: #444; cursor: pointer; display: flex; align-items: center; margin-bottom: 0.75rem; border-radius: 6px; }
+.main-content { flex: 1; padding: 2rem; background: rgba(253,251,251,0.9); border-radius: 10px; margin: 1rem; overflow-y: auto; }
+.assets-section { margin-top: 1.5rem; }
+.assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2rem; }
+.asset-card, .asset-cards { background: #ffffff; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; }
+.asset-visible .asset-code { font-weight: bold; color: #4b0082; }
+.popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.popup-content { background: #ffffff; padding: 2.5rem; border-radius: 12px; width: 450px; box-shadow: 0 6px 25px rgba(0,0,0,0.15); position: relative; }
+.submit-button { width: 100%; padding: 0.9rem; background-color: #800080; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-top: 1.5rem; }
+.delete-button { background-color: #dc3545; color: #fff; }
+.assign-button { margin-top: 10px; padding: 5px 10px; background-color: #4CAF50; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+.remove-button { margin-top: 10px; padding: 5px 10px; background-color: #f44336; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+.btn-approve { background: #10b981; color: #fff; padding: 0.5rem 1rem; border-radius: 6px; border: none; }
+.btn-reject { background: #ef4444; color: #fff; padding: 0.5rem 1rem; border-radius: 6px; border: none; }
+.report-issue-button { margin-top: 10px; padding: 6px 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+.report-issues-textarea { width: 90%; height: 60px; margin-top: 15px; }
