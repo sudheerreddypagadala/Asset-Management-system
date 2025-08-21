@@ -4,13 +4,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
 import { useRouter } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const BASIC_URL = process.env.NEXT_PUBLIC_BASIC_URL || "";
 
 export default function UserDashboardPage() {
   const router = useRouter();
-  const token = useMemo(() => sessionStorage.getItem("token"), []);
-  const username = useMemo(() => sessionStorage.getItem("username") || "Guest", []);
-  const departmentid = useMemo(() => sessionStorage.getItem("departmentid") || "", []);
+  const [token, setToken] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("Guest");
+  const [departmentid, setDepartmentId] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setToken(sessionStorage.getItem("token"));
+    setUsername(sessionStorage.getItem("username") || "Guest");
+    setDepartmentId(sessionStorage.getItem("departmentid") || "");
+  }, []);
 
   const [assets, setAssets] = useState<any[]>([]);
   const [availableAssets, setAvailableAssets] = useState<any[]>([]);
@@ -162,7 +171,7 @@ export default function UserDashboardPage() {
               <div className="assets-section">
                 <h2>Notifications</h2>
                 <div className="assets-grid">
-                  {notifications.filter((n: any) => n.username === (sessionStorage.getItem("username") || "Guest")).map((n: any, idx: number) => (
+                  {notifications.filter((n: any) => n.username === username).map((n: any, idx: number) => (
                     <div key={idx} className="asset-card">
                       <p>{n.message}</p>
                       <p>{new Date(n.timestamp).toLocaleString()}</p>

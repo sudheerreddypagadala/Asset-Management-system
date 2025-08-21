@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const BASIC_URL = process.env.NEXT_PUBLIC_BASIC_URL || "";
 
 type Asset = any;
@@ -37,10 +39,18 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<string>("all");
 
-  const username = useMemo(() => sessionStorage.getItem("username") || "Admin", []);
-  const token = useMemo(() => sessionStorage.getItem("token"), []);
-  const userType = useMemo(() => sessionStorage.getItem("userType"), []);
-  const departmentid = useMemo(() => sessionStorage.getItem("departmentid"), []);
+  const [username, setUsername] = useState<string>("Admin");
+  const [token, setToken] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+  const [departmentid, setDepartmentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setUsername(sessionStorage.getItem("username") || "Admin");
+    setToken(sessionStorage.getItem("token"));
+    setUserType(sessionStorage.getItem("userType"));
+    setDepartmentId(sessionStorage.getItem("departmentid"));
+  }, []);
 
   useEffect(() => {
     if (!token) {

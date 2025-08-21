@@ -3,14 +3,24 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const BASIC_URL = process.env.NEXT_PUBLIC_BASIC_URL || "";
 
 export default function HodDashboardPage() {
   const router = useRouter();
-  const token = useMemo(() => sessionStorage.getItem("token"), []);
-  const userType = useMemo(() => sessionStorage.getItem("userType"), []);
-  const username = useMemo(() => sessionStorage.getItem("username") || "", []);
-  const departmentid = useMemo(() => sessionStorage.getItem("departmentid") || "", []);
+  const [token, setToken] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("");
+  const [departmentid, setDepartmentId] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setToken(sessionStorage.getItem("token"));
+    setUserType(sessionStorage.getItem("userType"));
+    setUsername(sessionStorage.getItem("username") || "");
+    setDepartmentId(sessionStorage.getItem("departmentid") || "");
+  }, []);
 
   const [assets, setAssets] = useState<any[]>([]);
   const [allAssets, setAllAssets] = useState<any[]>([]);
